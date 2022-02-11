@@ -72,7 +72,10 @@ def parse_data(html_text):
     upcoming_data = []
     for column in my_soup.find_all("div",attrs={"class":"div-column"}):
         daily_dict = {}
-        daily_dict['date'] = column.find("div",attrs={"class":"div-row div-row1 div-row-head"}).text.strip()
+        try:
+            daily_dict['date'] = column.find("div",attrs={"class":"div-row div-row1 div-row-head"}).text.strip()
+        except AttributeError:
+            pass
         
         for tag in column.find_all("span"):
             
@@ -119,18 +122,22 @@ def display_data(data):
     print(f"Humidity: {data['current_humidity']}")
     print()
     for day in data['upcoming_days']:
-        date = day['date'][0:3] + ' ' + day['date'][3:]
-        print("="*10, f"Weather for {date}: ", "="*10)
-        print(f"Daytime high: {day['high']}")
-        print(f"Daytime conditions: {day['day_conditions']}")
-        if day['day_cop'] == '':
-            if day['day_conditions'] == "Rain":
-                day_cop = "100%"
+        try:
+            date = day['date'][0:3] + ' ' + day['date'][3:]
+            print("="*10, f"Weather for {date}: ", "="*10)
+            print(f"Daytime high: {day['high']}")
+            print(f"Daytime conditions: {day['day_conditions']}")
+            if day['day_cop'] == '':
+                if day['day_conditions'] == "Rain":
+                    day_cop = "100%"
+                else:
+                    day_cop = "0%"
             else:
-                day_cop = "0%"
-        else:
-            day_cop = day['day_cop']
-        print(f"Chance of precip: {day_cop}")
+                day_cop = day['day_cop']
+            print(f"Chance of precip: {day_cop}")
+        except KeyError:
+            pass
+
         try:
             print(f"Nighttime low: {day['low']}")
             print(f"Nighttime conditions: {day['night_conditions']}")
